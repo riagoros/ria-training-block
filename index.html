@@ -88,7 +88,8 @@ details.week > summary::-webkit-details-marker{display:none}
 .check{appearance:none;width:22px;height:22px;border:2px solid var(--line);border-radius:6px;margin:1px 0 0;cursor:pointer;display:grid;place-content:center;background:var(--surface)}
 .check:checked{background:var(--done);border-color:var(--done)}
 .check:checked::after{content:"";width:6px;height:11px;border:solid var(--bg);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
-.check:disabled{cursor:default;opacity:.6}
+.check:disabled{cursor:default;opacity:1}
+.note{display:none!important}
 .day{font-size:.82rem;color:var(--muted);line-height:1.3}
 .day b{display:block;color:var(--ink);font-weight:600}
 .what{min-width:0}
@@ -151,8 +152,6 @@ tr:last-child td{border-bottom:0}
     <h1>NYC Half Training Block</h1>
     <p class="sub">Goal sub-1:25 (6:29/mi) on Sun Mar 21, 2027, with sub-1:30 as the floor. February paces assume ~1:27:30 fitness and get reset after the Manhattan 10K on Jan 31.</p>
   </header>
-
-  <section class="next" id="next" aria-label="Today's run"></section>
 
   <section class="summary" aria-label="Progress">
     <div class="stat"><span class="label">Race in</span><b id="s-days" class="mono">–</b><small id="s-days-sub">days</small></div>
@@ -244,8 +243,8 @@ tr:last-child td{border-bottom:0}
   if(curIdx<0) curIdx = today<weeks[0].start ? 0 : weeks.length-1;
 
   // State: {done:{key:true}, notes:{key:"text"}}
-  let state={done:{},notes:{}};
-  let ref=null, canWrite=true, mode="loading", filter="all";
+  let state={done:{"2026-10-19-1":true,"2026-10-19-3":true,"2026-10-19-4":true,"2026-10-26-0":true,"2026-10-26-1":true,"2026-10-26-3":true,"2026-10-26-5":true,"2026-11-02-1":true,"2026-11-02-2":true,"2026-11-02-3":true,"2026-11-02-5":true,"2026-11-09-0":true},notes:{}};
+  let ref=null, canWrite=false, mode="loading", filter="all";
   const LS="nyc-half-plan-v1";
   function lsLoad(){try{const v=JSON.parse(localStorage.getItem(LS)||"null");if(v&&v.done)state=v}catch(e){}}
   function lsSave(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
@@ -343,7 +342,7 @@ tr:last-child td{border-bottom:0}
 
   function dayLabel(d){const diff=Math.round((d-today)/864e5); if(diff===0)return "Today"; if(diff===1)return "Tomorrow"; return DAYS[(d.getDay()+6)%7]+" "+fmt(d)}
   function renderNext(){
-    const el=$("next"), all=weeks.flatMap(w=>w.sessions);
+    const el=$("next"); if(!el) return; const all=weeks.flatMap(w=>w.sessions);
     const todayS=all.filter(s=>+s.date===+today);
     let main, isToday=false;
     if(todayS.length){ main=todayS.find(s=>!state.done[s.key])||todayS[todayS.length-1]; isToday=true; }
@@ -388,9 +387,9 @@ tr:last-child td{border-bottom:0}
   $("jump").addEventListener("click",()=>{openState[curIdx]=true;renderWeeks();const el=$("week-"+curIdx);if(el){el.open=true;el.scrollIntoView({behavior:"smooth",block:"start"})}});
 
   if(window.matchMedia && matchMedia("(max-width:560px)").matches){ filter="ahead"; $("f-ahead").setAttribute("aria-pressed","true"); $("f-all").setAttribute("aria-pressed","false"); }
-  lsLoad(); renderAll();
+  renderAll();
 
-  setStatus("Saved on this device");
+  setStatus("Completed runs as of Nov 9");
 })();
 </script>
 </body>
