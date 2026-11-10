@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NYC Half Training Block</title>
+<meta name="theme-color" content="#1f6b4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NYC Half">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column log — summary strip, weekly volume bars, then stacked week cards; current week opens by default */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --ink:#18221d; --muted:#5d6b63; --line:#d9e0db;
+  --accent:#1f6b4a; --accent-soft:#e2efe8;
+  --easy:#4f8a6e; --easy-bg:#e6f1eb;
+  --quality:#b26a12; --quality-bg:#f8ecd9;
+  --long:#2b6a8f; --long-bg:#e1edf4;
+  --race:#b3263a; --race-bg:#f7e1e4;
+  --done:#1f6b4a;
+  --f-display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101613; --surface:#18201b; --ink:#e6ece8; --muted:#97a69d; --line:#2b3630;
+  --accent:#5fbf8f; --accent-soft:#1d3329;
+  --easy:#7cc4a0; --easy-bg:#1c2f25; --quality:#e5a24a; --quality-bg:#33270f;
+  --long:#6fb3dc; --long-bg:#15293a; --race:#ef6f82; --race-bg:#3a1a20; --done:#5fbf8f;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101613; --surface:#18201b; --ink:#e6ece8; --muted:#97a69d; --line:#2b3630;
+  --accent:#5fbf8f; --accent-soft:#1d3329;
+  --easy:#7cc4a0; --easy-bg:#1c2f25; --quality:#e5a24a; --quality-bg:#33270f;
+  --long:#6fb3dc; --long-bg:#15293a; --race:#ef6f82; --race-bg:#3a1a20; --done:#5fbf8f;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:820px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+body{margin:0}
+h1,.sub{overflow-wrap:anywhere}
+h1{font-family:var(--f-display);font-weight:700;font-size:2.4rem;line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{background:var(--surface);padding:12px 14px;display:grid;gap:2px;min-width:0}
+.stat b{font-family:var(--f-display);font-size:1.7rem;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-size:.78rem}
+@media (max-width:560px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:var(--done);width:0;transition:width .3s}
+.vol{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.vol-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.legend{display:flex;gap:12px;font-size:.78rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--sw)}
+svg text{fill:var(--muted);font-family:var(--f-mono);font-size:9px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;font:500 .85rem var(--f-body);color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 12px;font:500 .85rem var(--f-body);cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.status{margin-left:auto;font-size:.78rem;color:var(--muted)}
+.weeks{display:grid;gap:10px}
+details.week{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+details.week.current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+details.week > summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+details.week > summary::-webkit-details-marker{display:none}
+.wk-num{font-family:var(--f-display);font-weight:700;font-size:1.5rem;width:2.4ch;text-align:center;color:var(--muted)}
+.current .wk-num{color:var(--accent)}
+.wk-title{min-width:0}
+.wk-title strong{font-weight:600}
+.wk-title .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.82rem;margin-top:2px}
+.phase{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;font-weight:600;padding:2px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.phase.easier{background:var(--easy-bg);color:var(--easy)}
+.phase.race{background:var(--race-bg);color:var(--race)}
+.now{font-size:.7rem;font-weight:600;color:var(--bg);background:var(--accent);padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.07em}
+.wk-prog{text-align:right;font-size:.82rem;color:var(--muted)}
+.wk-prog b{display:block;font-family:var(--f-display);font-size:1.15rem;color:var(--ink);font-weight:600}
+.wk-prog.full b{color:var(--done)}
+.sessions{border-top:1px solid var(--line);display:grid}
+.sess{display:grid;grid-template-columns:auto 4.6rem minmax(0,1fr) auto;gap:10px 12px;align-items:start;padding:11px 14px;border-bottom:1px solid var(--line)}
+.sess:last-child{border-bottom:0}
+.check{appearance:none;width:22px;height:22px;border:2px solid var(--line);border-radius:6px;margin:1px 0 0;cursor:pointer;display:grid;place-content:center;background:var(--surface)}
+.check:checked{background:var(--done);border-color:var(--done)}
+.check:checked::after{content:"";width:6px;height:11px;border:solid var(--bg);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.check:disabled{cursor:default;opacity:.6}
+.day{font-size:.82rem;color:var(--muted);line-height:1.3}
+.day b{display:block;color:var(--ink);font-weight:600}
+.what{min-width:0}
+.tag{display:inline-block;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;padding:1px 6px;border-radius:4px;margin-right:6px;vertical-align:1px}
+.t-easy{background:var(--easy-bg);color:var(--easy)} .t-quality{background:var(--quality-bg);color:var(--quality)}
+.t-long{background:var(--long-bg);color:var(--long)} .t-race{background:var(--race-bg);color:var(--race)}
+.desc{overflow-wrap:anywhere}
+.sess.is-done .desc{color:var(--muted)}
+.note{margin-top:7px;width:100%;border:1px solid transparent;border-radius:6px;background:transparent;padding:5px 7px;font:400 .85rem var(--f-body);color:var(--ink)}
+.note::placeholder{color:var(--muted);opacity:.8}
+.note:hover,.note:focus{border-color:var(--line);background:var(--bg)}
+.km{font-family:var(--f-mono);font-size:.9rem;text-align:right;white-space:nowrap}
+.wk-foot{padding:9px 14px 12px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--line)}
+.paces{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.paces summary{padding:12px 14px;cursor:pointer;font-weight:600}
+.tbl{overflow-x:auto;border-top:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+td.mono{font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+@media (max-width:520px){
+  .sess{grid-template-columns:auto minmax(0,1fr) auto}
+  .day{grid-column:2;grid-row:1}
+  .what{grid-column:2 / 4;grid-row:2}
+  .km{grid-column:3;grid-row:1}
+  .check{grid-row:1 / 3}
+}
+.next{background:var(--surface);border:1px solid var(--accent);box-shadow:0 0 0 1px var(--accent);border-radius:12px;padding:14px 16px;display:grid;gap:10px}
+.next-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
+.next-when{font-family:var(--f-display);font-weight:700;font-size:1.6rem;line-height:1.05;margin-top:2px}
+.next-km{font-family:var(--f-display);font-weight:600;font-size:1.6rem;line-height:1}
+.next-desc{font-size:1rem;overflow-wrap:anywhere}
+.next.is-done .next-desc{color:var(--muted)}
+.next-actions{display:flex;gap:10px;align-items:center}
+.done-btn{flex:none;min-height:44px;padding:0 18px;border-radius:10px;border:2px solid var(--accent);background:var(--accent);color:var(--bg);font:600 1rem var(--f-body);cursor:pointer}
+.done-btn.is-done{background:var(--surface);color:var(--accent)}
+.done-btn:disabled{opacity:.6;cursor:default}
+.next .note{margin:0;flex:1;min-width:0;min-height:44px;border-color:var(--line);background:var(--bg)}
+.next-then{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+@media (max-width:560px){
+  body{padding-block:14px 40px}
+  .wrap{gap:14px}
+  h1{font-size:1.9rem}
+  .sub{font-size:.86rem}
+  .note{font-size:16px}
+  .check{width:28px;height:28px}
+  .paces th:nth-child(4),.paces td:nth-child(4){display:none}
+  .paces th,.paces td{white-space:normal}
+  th,td{padding:8px 10px}
+  .status{margin-left:0;width:100%}
+  .next-actions{flex-direction:column;align-items:stretch}
+  .seg button,.btn{min-height:40px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>NYC Half Training Block</h1>
+    <p class="sub">Goal sub-1:25 (6:29/mi) on Sun Mar 21, 2027, with sub-1:30 as the floor. February paces assume ~1:27:30 fitness and get reset after the Manhattan 10K on Jan 31.</p>
+  </header>
+
+  <section class="next" id="next" aria-label="Today's run"></section>
+
+  <section class="summary" aria-label="Progress">
+    <div class="stat"><span class="label">Race in</span><b id="s-days" class="mono">–</b><small id="s-days-sub">days</small></div>
+    <div class="stat"><span class="label">Current week</span><b id="s-week">–</b><small id="s-phase">–</small></div>
+    <div class="stat"><span class="label">Runs done</span><b id="s-runs">0</b><small id="s-runs-sub">of 0</small><div class="bar"><i id="b-runs"></i></div></div>
+    <div class="stat"><span class="label">Miles done</span><b id="s-km">0</b><small id="s-km-sub">of 0 planned</small><div class="bar"><i id="b-km"></i></div></div>
+  </section>
+
+  <details class="paces" id="paces" open>
+    <summary>Training paces (min/mile)</summary>
+    <div class="tbl"><table>
+      <thead><tr><th>Run type</th><th>Now (min/mi)</th><th>By February</th><th>Feel</th></tr></thead>
+      <tbody>
+        <tr><td>Easy and long</td><td class="mono">8:35–9:23</td><td class="mono">8:15–9:05</td><td>Conversational, HR under ~150</td></tr>
+        <tr><td>Steady</td><td class="mono">7:39–7:55</td><td class="mono">7:15–7:30</td><td>Comfortable but focused</td></tr>
+        <tr><td>Threshold</td><td class="mono">7:06</td><td class="mono">6:35</td><td>About 1 hour race effort</td></tr>
+        <tr><td>Intervals (½–1 mi reps)</td><td class="mono">6:34</td><td class="mono">6:06</td><td>About 5K race effort</td></tr>
+        <tr><td>Half race pace</td><td class="mono">7:19</td><td class="mono">6:29–6:50 (set by 10K)</td><td>Goal pace</td></tr>
+      </tbody>
+    </table></div>
+  </details>
+
+  <section class="vol" aria-label="Weekly volume">
+    <div class="vol-head">
+      <span class="label">Weekly miles, planned vs done</span>
+      <span class="legend"><span style="--sw:var(--line)">Planned</span><span style="--sw:var(--done)">Done</span></span>
+    </div>
+    <svg id="chart" viewBox="0 0 660 120" width="100%" role="img" aria-label="Weekly planned and completed miles"></svg>
+  </section>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Show weeks">
+      <button id="f-all" type="button" aria-pressed="true">All weeks</button>
+      <button id="f-ahead" type="button" aria-pressed="false">This week on</button>
+    </div>
+    <button id="jump" class="btn" type="button">Jump to this week</button>
+    <span id="status" class="status">Loading your progress…</span>
+  </div>
+
+  <section id="weeks" class="weeks"></section>
+
+</div>
+
+<script>
+(function(){
+  // Plan data: [weekStart (Mon), phase, sessions[[dayOffset, type, km, description]]]
+  const W = [
+    ["2026-10-19","Recovery",[[1,"easy",4,"Easy"],[3,"long",6,"Easy long run"],[4,"easy",5,"Easy"]]],
+    ["2026-10-26","Base",[[0,"easy",4,"Easy"],[1,"quality",5,"Easy with 6 × 20 s strides"],[3,"easy",5,"Easy"],[5,"long",9,"Long run, easy"]]],
+    ["2026-11-02","Base",[[1,"easy",4,"Easy"],[2,"quality",6,"6 × 60 s uphill, jog down"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[5,"long",10,"Long run, easy"]]],
+    ["2026-11-09","Base",[[0,"easy",4,"Easy"],[1,"quality",7,"2 × 12 min @ 7:02/mi, 3 min jog"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[4,"easy",3,"Easy, short"],[5,"long",9,"Long run, easy"]]],
+    ["2026-11-16","Easier week",[[0,"easy",4,"Easy"],[1,"quality",5,"4 × 3 min steady + strides"],[3,"easy",4,"Easy"],[4,"easy",3,"Easy, short"],[5,"long",8,"Long run, easy"]]],
+    ["2026-11-23","Base + 5K",[[0,"easy",5,"Easy"],[1,"quality",6,"3 × 3 min @ 6:30/mi (5K effort), 2 min jog + strides"],[3,"race",6,"Sri Chinmoy Thanksgiving Day 5K, Flushing Meadows (flat), 9:00 AM. Target 20:00–20:15, sub-20 if it's on (with warm-up and cool-down)"],[5,"easy",3,"Easy shakeout"],[6,"long",10,"Long run, easy"]]],
+    ["2026-11-30","Base",[[0,"easy",5,"Easy"],[1,"quality",7,"3 × 10 min @ 7:00/mi"],[3,"easy",6,"Easy + strides"],[4,"easy",4,"Easy"],[5,"long",11,"Long run, easy"]]],
+    ["2026-12-07","Base",[[0,"easy",5,"Easy"],[1,"quality",8,"25 min continuous @ 6:58/mi"],[3,"easy",6,"Easy + strides"],[4,"easy",4,"Easy"],[5,"long",13,"Long run, easy"]]],
+    ["2026-12-14","Easier week",[[0,"easy",4,"Easy"],[1,"quality",6,"8 × 60 s uphill + strides"],[3,"easy",5,"Easy"],[4,"easy",3,"Easy, short"],[5,"long",10,"Long run, easy"]]],
+    ["2026-12-21","Build",[[0,"easy",5,"Easy"],[1,"quality",7,"4 × 1 mi @ 6:24/mi, 3 min jog"],[3,"easy",6,"Easy (holiday week, flexible)"],[4,"easy",4,"Easy"],[5,"long",12,"Long run, easy"]]],
+    ["2026-12-28","Build",[[0,"easy",5,"Easy"],[1,"quality",8,"5 × 1 mi @ 6:23/mi, 3 min jog"],[3,"quality",7,"3 × 10 min @ 6:51/mi"],[4,"easy",4,"Easy"],[5,"long",13,"Long run, easy"]]],
+    ["2027-01-04","Build",[[0,"easy",5,"Easy"],[1,"quality",8,"5 × 1 mi @ 6:28/mi, 2 min jog"],[2,"easy",3,"Optional: easy, or 30–40 min cross-training"],[3,"quality",7,"2 × 15 min @ 6:47/mi"],[4,"easy",4,"Easy"],[5,"long",13,"Long run, last 3 mi @ 7:12/mi"]]],
+    ["2027-01-11","Build",[[0,"easy",6,"Easy"],[1,"quality",9,"10 × ½ mi @ 6:19/mi (3:10 each), 90 s jog"],[2,"easy",4,"Optional: easy, or 30–40 min cross-training"],[3,"quality",7,"2 × 15 min @ 6:44/mi"],[4,"easy",4,"Easy"],[5,"long",14,"Long run, easy"]]],
+    ["2027-01-18","Easier week",[[0,"easy",4,"Easy"],[1,"quality",6,"3 × 1 mi @ 6:16/mi, 3 min jog"],[2,"easy",3,"Optional: easy, or 30–40 min cross-training"],[3,"easy",5,"Easy"],[4,"easy",3,"Easy, short"],[5,"long",10,"Long run, easy"]]],
+    ["2027-01-25","10K race week",[[0,"easy",4,"Easy"],[1,"quality",5,"2 × 1 mi @ 6:26/mi"],[3,"easy",4,"Easy + 4 strides"],[4,"easy",3,"Easy shakeout"],[6,"race",9,"Manhattan 10K, target 39:30–40:00; under 38:30 means sub-1:25 is on (with warm-up and cool-down)"]]],
+    ["2027-02-01","Recovery",[[1,"easy",5,"Easy"],[3,"easy",6,"Easy + strides"],[4,"easy",4,"Easy"],[5,"long",12,"Long run, easy"]]],
+    ["2027-02-08","Race-specific",[[0,"easy",6,"Easy"],[1,"quality",8,"3 × 2 mi @ 6:26/mi, 3 min jog"],[2,"easy",4,"Optional: easy, or 30–40 min cross-training"],[3,"quality",8,"30 min @ 6:35/mi"],[4,"easy",4,"Easy"],[5,"long",14,"Long run with 6 mi @ goal pace (6:40 default)"]]],
+    ["2027-02-15","Race-specific",[[0,"easy",6,"Easy"],[1,"quality",9,"8 × ½ mi @ 6:06/mi (3:03 each), 90 s jog"],[2,"easy",4,"Optional: easy, or 30–40 min cross-training"],[3,"quality",8,"2 × 2.5 mi @ 6:35/mi"],[4,"easy",4,"Easy"],[5,"long",16,"Long run, easy"]]],
+    ["2027-02-22","Race-specific",[[0,"easy",6,"Easy"],[1,"quality",9,"3 × 2 mi @ 6:30/mi, 3 min jog"],[2,"easy",4,"Optional: easy, or 30–40 min cross-training"],[3,"easy",6,"Easy"],[4,"easy",4,"Easy"],[5,"long",14,"Long run with 10 mi @ goal pace (key check: sets race pace)"]]],
+    ["2027-03-01","Race-specific",[[0,"easy",6,"Easy"],[1,"quality",9,"4 × 1 mi @ 6:06/mi, 3 min jog"],[2,"easy",4,"Optional: easy, or 30–40 min cross-training"],[3,"quality",9,"2 × 3 mi @ 6:38/mi"],[4,"easy",4,"Easy"],[5,"long",15,"Long run, easy"]]],
+    ["2027-03-08","Taper",[[0,"easy",5,"Easy"],[1,"quality",7,"6 × ½ mi @ 6:08/mi (3:04 each)"],[2,"easy",3,"Optional: easy, or 30–40 min cross-training"],[3,"quality",6,"Easy with 3 mi @ goal pace"],[4,"easy",3,"Easy"],[5,"long",10,"Long run, easy"]]],
+    ["2027-03-15","Race week",[[0,"easy",4,"Easy"],[1,"quality",5,"2 × 1 mi @ goal pace"],[3,"easy",4,"Easy + 4 strides"],[4,"easy",3,"Easy shakeout"],[6,"race",14,"NYC Half, goal sub-1:25 (6:29/mi), race pace set after Feb 22 (with warm-up)"]]],
+  ];
+  const TYPE = {easy:"Easy",quality:"Quality",long:"Long",race:"Race"};
+  const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const RACE = new Date(2027,2,21);
+
+  function parse(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)}
+  function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+  function r1(n){return Math.round(n*10)/10}
+  function fmt(d){return MONTHS[d.getMonth()]+" "+d.getDate()}
+  const today=new Date(); today.setHours(0,0,0,0);
+
+  const weeks = W.map((w,i)=>{
+    const start=parse(w[0]);
+    return {i, start, end:addDays(start,6), phase:w[1],
+      sessions:w[2].map(s=>({key:w[0]+"-"+s[0], date:addDays(start,s[0]), type:s[1], km:s[2], desc:s[3]})),
+      planned:r1(w[2].reduce((a,s)=>a+s[2],0))};
+  });
+  let curIdx = weeks.findIndex(w=>today>=w.start && today<=w.end);
+  if(curIdx<0) curIdx = today<weeks[0].start ? 0 : weeks.length-1;
+
+  // State: {done:{key:true}, notes:{key:"text"}}
+  let state={done:{},notes:{}};
+  let ref=null, canWrite=true, mode="loading", filter="all";
+  const LS="nyc-half-plan-v1";
+  function lsLoad(){try{const v=JSON.parse(localStorage.getItem(LS)||"null");if(v&&v.done)state=v}catch(e){}}
+  function lsSave(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
+
+  const $=id=>document.getElementById(id);
+  const weeksEl=$("weeks");
+  const openState={};
+
+  function phaseClass(p){return /easier|recovery|taper/i.test(p)?"easier":/race/i.test(p)&&!/specific/i.test(p)?"race":""}
+
+  function renderWeeks(){
+    weeksEl.textContent="";
+    weeks.forEach(w=>{
+      if(filter==="ahead" && w.i<curIdx) return;
+      const d=document.createElement("details");
+      d.className="week"+(w.i===curIdx?" current":"");
+      d.id="week-"+w.i;
+      d.open = w.i in openState ? openState[w.i] : w.i===curIdx;
+      d.addEventListener("toggle",()=>{openState[w.i]=d.open});
+      const doneN=w.sessions.filter(s=>state.done[s.key]).length;
+      const doneKm=w.sessions.filter(s=>state.done[s.key]).reduce((a,s)=>a+s.km,0);
+      const sum=document.createElement("summary");
+      sum.innerHTML=`<span class="wk-num">${w.i}</span>
+        <span class="wk-title"><strong>${fmt(w.start)} – ${fmt(w.end)}</strong>
+          <span class="meta"><span class="phase ${phaseClass(w.phase)}"></span>${w.i===curIdx?'<span class="now">This week</span>':''}<span class="mono">${w.planned} mi planned</span></span></span>
+        <span class="wk-prog ${doneN===w.sessions.length?'full':''}"><b class="mono">${doneN}/${w.sessions.length}</b>${r1(doneKm)} mi</span>`;
+      sum.querySelector(".phase").textContent=w.phase;
+      d.appendChild(sum);
+      const list=document.createElement("div"); list.className="sessions";
+      w.sessions.forEach(s=>{
+        const row=document.createElement("div");
+        row.className="sess"+(state.done[s.key]?" is-done":"");
+        const id="c-"+s.key;
+        row.innerHTML=`<input type="checkbox" class="check" id="${id}">
+          <label class="day" for="${id}"><b>${DAYS[(s.date.getDay()+6)%7]}</b>${fmt(s.date)}</label>
+          <div class="what"><div class="desc"><span class="tag t-${s.type}">${TYPE[s.type]}</span><span class="txt"></span></div>
+            <input class="note" data-key="${s.key}" id="n-${s.key}" type="text" maxlength="200" placeholder="Add a note: actual pace, how calves felt…" aria-label="Note for ${fmt(s.date)}"></div>
+          <span class="km">${s.km} mi</span>`;
+        row.querySelector(".txt").textContent=s.desc;
+        const cb=row.querySelector(".check"); cb.checked=!!state.done[s.key]; cb.disabled=!canWrite;
+        cb.addEventListener("change",()=>{ if(cb.checked) state.done[s.key]=true; else delete state.done[s.key]; save(); renderAll(); });
+        const note=row.querySelector(".note"); note.value=state.notes[s.key]||""; note.disabled=!canWrite;
+        let t; note.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(()=>{
+          const v=note.value.trim(); if(v) state.notes[s.key]=v; else delete state.notes[s.key]; save();},700)});
+        list.appendChild(row);
+      });
+      d.appendChild(list);
+      if(w.i===0){const f=document.createElement("div");f.className="wk-foot";f.textContent="Mon Oct 19: rest after Falling Leaves. Gym and stretching from Wednesday.";d.appendChild(f)}
+      if(w.phase==="Race week"||w.phase==="10K race week"||w.phase==="Base + 5K"){const f=document.createElement("div");f.className="wk-foot";f.textContent="No heavy gym from 10 days out. Light core and mobility only.";d.appendChild(f)}
+      weeksEl.appendChild(d);
+    });
+  }
+
+  function renderSummary(){
+    const all=weeks.flatMap(w=>w.sessions);
+    const doneS=all.filter(s=>state.done[s.key]);
+    const totKm=all.reduce((a,s)=>a+s.km,0), doneKm=doneS.reduce((a,s)=>a+s.km,0);
+    const days=Math.max(0,Math.round((RACE-today)/864e5));
+    $("s-days").textContent=days; $("s-days-sub").textContent=days===1?"day to NYC Half":"days to NYC Half";
+    $("s-week").textContent="Week "+curIdx; $("s-phase").textContent=weeks[curIdx].phase+" · "+weeks[curIdx].planned+" mi";
+    $("s-runs").textContent=doneS.length; $("s-runs-sub").textContent="of "+all.length;
+    $("s-km").textContent=r1(doneKm); $("s-km-sub").textContent="of "+r1(totKm)+" planned";
+    $("b-runs").style.width=(100*doneS.length/all.length)+"%"; $("b-km").style.width=(100*doneKm/totKm)+"%";
+  }
+
+  function renderChart(){
+    const svg=$("chart"), NS="http://www.w3.org/2000/svg";
+    svg.textContent="";
+    const L=26,R=6,T=6,B=18,Wd=660,H=120,max=50, n=weeks.length, slot=(Wd-L-R)/n, bw=slot*0.62;
+    const y=v=>T+(H-T-B)*(1-v/max);
+    [0,10,20,30,40].forEach(v=>{
+      const ln=document.createElementNS(NS,"line");
+      ln.setAttribute("x1",L);ln.setAttribute("x2",Wd-R);ln.setAttribute("y1",y(v));ln.setAttribute("y2",y(v));
+      ln.setAttribute("stroke","var(--line)");ln.setAttribute("stroke-width","1");svg.appendChild(ln);
+      const tx=document.createElementNS(NS,"text");tx.setAttribute("x",L-5);tx.setAttribute("y",y(v)+3);tx.setAttribute("text-anchor","end");tx.textContent=v;svg.appendChild(tx);
+    });
+    weeks.forEach(w=>{
+      const x=L+w.i*slot+(slot-bw)/2;
+      const done=w.sessions.filter(s=>state.done[s.key]).reduce((a,s)=>a+s.km,0);
+      const p=document.createElementNS(NS,"rect");
+      p.setAttribute("x",x);p.setAttribute("width",bw);p.setAttribute("y",y(w.planned));p.setAttribute("height",y(0)-y(w.planned));
+      p.setAttribute("rx","2");p.setAttribute("fill","var(--line)");
+      const tt=document.createElementNS(NS,"title");tt.textContent=`Week ${w.i} (${fmt(w.start)}): ${r1(done)} of ${w.planned} mi`;p.appendChild(tt);
+      svg.appendChild(p);
+      if(done>0){const r=document.createElementNS(NS,"rect");
+        r.setAttribute("x",x);r.setAttribute("width",bw);r.setAttribute("y",y(done));r.setAttribute("height",y(0)-y(done));
+        r.setAttribute("rx","2");r.setAttribute("fill","var(--done)");r.appendChild(tt.cloneNode(true));svg.appendChild(r)}
+      if(w.i===curIdx){const c=document.createElementNS(NS,"rect");
+        c.setAttribute("x",x-2);c.setAttribute("width",bw+4);c.setAttribute("y",T-2);c.setAttribute("height",y(0)-T+2);
+        c.setAttribute("fill","none");c.setAttribute("stroke","var(--accent)");c.setAttribute("stroke-width","1.5");c.setAttribute("rx","3");svg.appendChild(c)}
+      if(w.i%4===0||w.i===n-1){const tx=document.createElementNS(NS,"text");
+        tx.setAttribute("x",x+bw/2);tx.setAttribute("y",H-5);tx.setAttribute("text-anchor","middle");tx.textContent=fmt(w.start);svg.appendChild(tx)}
+    });
+  }
+
+  function dayLabel(d){const diff=Math.round((d-today)/864e5); if(diff===0)return "Today"; if(diff===1)return "Tomorrow"; return DAYS[(d.getDay()+6)%7]+" "+fmt(d)}
+  function renderNext(){
+    const el=$("next"), all=weeks.flatMap(w=>w.sessions);
+    const todayS=all.filter(s=>+s.date===+today);
+    let main, isToday=false;
+    if(todayS.length){ main=todayS.find(s=>!state.done[s.key])||todayS[todayS.length-1]; isToday=true; }
+    else main=all.find(s=>s.date>today && !state.done[s.key]);
+    el.textContent="";
+    if(!main){ el.innerHTML='<div class="next-when">All sessions done</div>'; return; }
+    const done=!!state.done[main.key];
+    el.className="next"+(done?" is-done":"");
+    const after=all.find(s=>s.date>main.date && !state.done[s.key]);
+    el.innerHTML=`<div class="next-head"><span><span class="label">${isToday?"Today's run":"Next run"}</span><div class="next-when"></div></span><span class="next-km mono">${main.km} mi</span></div>
+      <div class="next-desc"><span class="tag t-${main.type}">${TYPE[main.type]}</span><span class="txt"></span></div>
+      <div class="next-actions"><button type="button" class="done-btn${done?" is-done":""}">${done?"Done ✓ (tap to undo)":"Mark done"}</button>
+        <input class="note" data-key="${main.key}" id="cn-${main.key}" type="text" maxlength="200" placeholder="Add a note: pace, how it felt…" aria-label="Note for this run"></div>
+      ${after?'<div class="next-then"></div>':''}`;
+    el.querySelector(".next-when").textContent=dayLabel(main.date);
+    el.querySelector(".txt").textContent=main.desc;
+    if(after) el.querySelector(".next-then").textContent="Then "+dayLabel(after.date)+": "+after.desc+" · "+after.km+" mi";
+    const btn=el.querySelector(".done-btn"); btn.disabled=!canWrite;
+    btn.addEventListener("click",()=>{ if(state.done[main.key]) delete state.done[main.key]; else state.done[main.key]=true; save(); renderAll(); });
+    const note=el.querySelector(".note"); note.value=state.notes[main.key]||""; note.disabled=!canWrite;
+    let t; note.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(()=>{
+      const v=note.value.trim(); if(v) state.notes[main.key]=v; else delete state.notes[main.key];
+      const li=$("n-"+main.key); if(li) li.value=note.value; save();},700)});
+  }
+
+  function renderAll(){renderNext();renderSummary();renderChart();renderWeeks()}
+
+  function setStatus(t){$("status").textContent=t}
+  let writing=false, pending=false;
+  async function save(){
+    lsSave();
+    if(!ref){return}
+    if(writing){pending=true;return}
+    writing=true; setStatus("Saving…");
+    try{ await ref.set({done:state.done,notes:state.notes,updated:new Date().toISOString()}); setStatus("Saved"); }
+    catch(e){ setStatus(e&&e.code==="invalid_argument"?"View only: changes aren't saved":"Couldn't save. Your ticks are kept on this device."); if(e&&e.code==="invalid_argument"){canWrite=false;renderWeeks();renderNext()} }
+    writing=false; if(pending){pending=false;save()}
+  }
+
+  $("f-all").addEventListener("click",()=>{filter="all";$("f-all").setAttribute("aria-pressed","true");$("f-ahead").setAttribute("aria-pressed","false");renderWeeks()});
+  $("f-ahead").addEventListener("click",()=>{filter="ahead";$("f-ahead").setAttribute("aria-pressed","true");$("f-all").setAttribute("aria-pressed","false");renderWeeks()});
+  $("jump").addEventListener("click",()=>{openState[curIdx]=true;renderWeeks();const el=$("week-"+curIdx);if(el){el.open=true;el.scrollIntoView({behavior:"smooth",block:"start"})}});
+
+  if(window.matchMedia && matchMedia("(max-width:560px)").matches){ filter="ahead"; $("f-ahead").setAttribute("aria-pressed","true"); $("f-all").setAttribute("aria-pressed","false"); }
+  lsLoad(); renderAll();
+
+  setStatus("Saved on this device");
+})();
+</script>
+</body>
+</html>
