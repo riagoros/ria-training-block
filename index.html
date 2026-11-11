@@ -202,7 +202,7 @@ tr:last-child td{border-bottom:0}
     ["2026-10-19","Recovery",[[1,"easy",4,"Easy"],[3,"long",6,"Easy long run"],[4,"easy",5,"Easy"]]],
     ["2026-10-26","Base",[[0,"easy",4,"Easy"],[1,"quality",5,"Easy with 6 × 20 s strides"],[3,"easy",5,"Easy"],[5,"long",9,"Long run, easy"]]],
     ["2026-11-02","Base",[[1,"easy",4,"Easy"],[2,"quality",6,"6 × 60 s uphill, jog down"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[5,"long",10,"Long run, easy"]]],
-    ["2026-11-09","Base",[[0,"easy",4,"Easy"],[1,"quality",7,"2 × 12 min @ 7:02/mi, 3 min jog"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[4,"easy",3,"Easy, short"],[5,"long",9,"Long run, easy"]]],
+    ["2026-11-09","Base",[[0,"easy",4,"Easy"],[1,"quality",7,"2 × 12 min @ 7:02/mi, 3 min jog"],[2,"easy",3,"Easy, short"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[5,"long",9,"Long run, easy"]]],
     ["2026-11-16","Base + speed test",[[0,"easy",5,"Easy"],[1,"quality",7,"5K pace test: 3 × 1 mi @ 6:15/mi, 3 min jog (with warm-up and cool-down)"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[5,"long",10,"Long run, easy"]]],
     ["2026-11-23","Base + 5K",[[0,"easy",5,"Easy"],[1,"quality",6,"3 × 3 min @ 6:20/mi (5K effort), 2 min jog + strides"],[3,"race",6,"Sri Chinmoy Thanksgiving Day 5K, Flushing Meadows (flat), 9:00 AM. Target 19:40–20:00, under 19:40 if it's on (with warm-up and cool-down)"],[5,"easy",3,"Easy shakeout"],[6,"long",10,"Long run, easy"]]],
     ["2026-11-30","Base",[[0,"easy",5,"Easy"],[1,"quality",7,"3 × 10 min @ 6:50/mi, 2 min jog"],[3,"easy",6,"Easy + strides"],[4,"easy",4,"Easy"],[5,"long",11,"Long run, easy"]]],
@@ -243,7 +243,7 @@ tr:last-child td{border-bottom:0}
   if(curIdx<0) curIdx = today<weeks[0].start ? 0 : weeks.length-1;
 
   // State: {done:{key:true}, notes:{key:"text"}}
-  let state={done:{"2026-10-19-1":true,"2026-10-19-3":true,"2026-10-19-4":true,"2026-10-26-0":true,"2026-10-26-1":true,"2026-10-26-3":true,"2026-10-26-5":true,"2026-11-02-1":true,"2026-11-02-2":true,"2026-11-02-3":true,"2026-11-02-5":true,"2026-11-09-0":true,"2026-11-09-1":true},notes:{}};
+  let state={done:{"2026-10-19-1":true,"2026-10-19-3":true,"2026-10-19-4":true,"2026-10-26-0":true,"2026-10-26-1":true,"2026-10-26-3":true,"2026-10-26-5":true,"2026-11-02-1":true,"2026-11-02-2":true,"2026-11-02-3":true,"2026-11-02-5":true,"2026-11-09-0":true,"2026-11-09-1":true,"2026-11-09-2":true},notes:{}};
   let ref=null, canWrite=false, mode="loading", filter="all";
   const LS="nyc-half-plan-v1";
   function lsLoad(){try{const v=JSON.parse(localStorage.getItem(LS)||"null");if(v&&v.done)state=v}catch(e){}}
@@ -389,7 +389,7 @@ tr:last-child td{border-bottom:0}
   if(window.matchMedia && matchMedia("(max-width:560px)").matches){ filter="ahead"; $("f-ahead").setAttribute("aria-pressed","true"); $("f-all").setAttribute("aria-pressed","false"); }
   renderAll();
 
-  setStatus("Completed runs as of Nov 10");
+  setStatus("Completed runs as of Nov 11");
 })();
 </script>
 </body>
