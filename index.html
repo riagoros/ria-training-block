@@ -199,7 +199,7 @@ tr:last-child td{border-bottom:0}
     ["2026-11-02","Base",[[1,"easy",4,"Easy"],[2,"quality",6,"6 × 60 s uphill, jog down"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[5,"long",10,"Long run, easy"]]],
     ["2026-11-09","Base",[[0,"easy",4,"Easy"],[1,"quality",7,"2 × 12 min @ 7:02/mi, 3 min jog"],[2,"easy",3,"Easy, short"],[3,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[5,"long",9,"Long run, easy"]]],
     ["2026-11-16","Base",[[1,"easy",5,"Easy"],[2,"quality",9,"3 × 1 mi @ 6:15/mi, 3 min jog (with warm-up and cool-down)"],[3,"easy",3,"Easy, short"],[4,"easy",5,"Easy + 4–6 × 20 s strides (~90% effort)"],[5,"long",11,"Long run, easy"]]],
-    ["2026-11-23","Base + 5K",[[0,"quality",6,"3 × 1 km @ 6:20/mi (3:56/km), 2 min jog"],[1,"easy",5,"Easy"],[3,"race",4,"Sri Chinmoy Thanksgiving Day 5K"],[4,"easy",3,"Easy shakeout"],[5,"long",11,"Long run, easy"]]],
+    ["2026-11-23","Base + 5K",[[0,"quality",6,"3 × 1 km @ 6:20/mi (3:56/km), 2 min jog"],[1,"easy",5,"Easy"],[3,"race",4,"Sri Chinmoy Thanksgiving Day 5K"],[4,"easy",4,"Easy shakeout"],[5,"long",12,"Long run, easy"]]],
     ["2026-11-30","Base",[[0,"easy",5,"Easy"],[1,"quality",7,"3 × 10 min @ 6:50/mi, 2 min jog"],[3,"quality",6,"Easy with 3 mi @ tempo 6:45–6:55/mi in the middle"],[4,"easy",4,"Easy"],[5,"long",11,"Long run, easy"]]],
     ["2026-12-07","Base",[[0,"easy",5,"Easy"],[1,"quality",8,"25 min continuous @ 6:48/mi"],[3,"quality",6,"Easy with 4 mi @ tempo 6:45–6:55/mi in the middle"],[4,"easy",4,"Easy"],[5,"long",12,"Long run, easy"]]],
     ["2026-12-14","Easier week",[[0,"easy",4,"Easy"],[1,"quality",6,"8 × 60 s uphill @ 6:45–7:00/mi (hard but controlled), jog down + 4–6 × 20 s strides"],[3,"easy",5,"Easy"],[4,"easy",3,"Easy, short"],[5,"long",10,"Long run, easy"]]],
@@ -238,7 +238,7 @@ tr:last-child td{border-bottom:0}
   if(curIdx<0) curIdx = today<weeks[0].start ? 0 : weeks.length-1;
 
   // State: {done:{key:true}, notes:{key:"text"}}
-  let state={done:{"2026-10-19-1":true,"2026-10-19-3":true,"2026-10-19-4":true,"2026-10-26-0":true,"2026-10-26-1":true,"2026-10-26-3":true,"2026-10-26-5":true,"2026-11-02-1":true,"2026-11-02-2":true,"2026-11-02-3":true,"2026-11-02-5":true,"2026-11-09-0":true,"2026-11-09-1":true,"2026-11-09-2":true,"2026-11-09-3":true,"2026-11-09-5":true,"2026-11-16-1":true,"2026-11-16-2":true,"2026-11-16-3":true,"2026-11-16-4":true,"2026-11-16-5":true,"2026-11-23-0":true},notes:{}};
+  let state={done:{"2026-10-19-1":true,"2026-10-19-3":true,"2026-10-19-4":true,"2026-10-26-0":true,"2026-10-26-1":true,"2026-10-26-3":true,"2026-10-26-5":true,"2026-11-02-1":true,"2026-11-02-2":true,"2026-11-02-3":true,"2026-11-02-5":true,"2026-11-09-0":true,"2026-11-09-1":true,"2026-11-09-2":true,"2026-11-09-3":true,"2026-11-09-5":true,"2026-11-16-1":true,"2026-11-16-2":true,"2026-11-16-3":true,"2026-11-16-4":true,"2026-11-16-5":true,"2026-11-23-0":true,"2026-11-23-1":true,"2026-11-23-3":true,"2026-11-23-4":true,"2026-11-23-5":true},notes:{}};
   let ref=null, canWrite=false, mode="loading", filter="all";
   const LS="nyc-half-block-v1";
   function lsLoad(){try{const v=JSON.parse(localStorage.getItem(LS)||"null");if(v&&v.done)state=v}catch(e){}}
@@ -384,7 +384,7 @@ tr:last-child td{border-bottom:0}
   if(window.matchMedia && matchMedia("(max-width:560px)").matches){ filter="ahead"; $("f-ahead").setAttribute("aria-pressed","true"); $("f-all").setAttribute("aria-pressed","false"); }
   renderAll();
 
-  setStatus("Completed runs as of Nov 23");
+  setStatus("Completed runs as of Nov 28");
 })();
 </script>
 
